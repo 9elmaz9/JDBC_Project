@@ -2,10 +2,7 @@ package jdbc.repositories;
 
 import jdbc.model.PostTopic;
 
-import java.sql.Connection;
-import java.sql.DriverManager;
-import java.sql.SQLException;
-import java.sql.Statement;
+import java.sql.*;
 import java.util.Collections;
 import java.util.List;
 
@@ -22,56 +19,85 @@ public class PostTopicRepository {
         return connection;
     }
 
+
+    //1
     public long create(PostTopic newPostTopic) throws SQLException {
+        try (Connection connection = getConnection();
+             Statement createStatement = connection.createStatement()) {
+            String insertQuery = "INSERT INTO PostTopic (postId, topicId) VALUES (" +
+                    newPostTopic.getPostId() + ", " +
+                    newPostTopic.getTopicId() + ")";
 
-        Statement createStatement = getConnection().createStatement();
-
-        // add create statements here..
-
-        // if fails return -1
-        return -1;
+            int rowsAffected = createStatement.executeUpdate(insertQuery);
+            if (rowsAffected == 0) {
+                throw new SQLException("Creating PostTopic failed, no rows affected.");
+            } else {
+                // Return the ID of the newly created post-topic relationship
+                return newPostTopic.getPostId();
+            }
+        }
     }
 
+
+    //2
     public PostTopic read(long id) throws SQLException {
+        try (Connection connection = getConnection();
+             Statement selectStatement = connection.createStatement()) {
 
-        Statement selectStatement = getConnection().createStatement();
+            String selectQUERY = "SELECT *FROM  post_topicWHERE id = " + id;
+
+            ResultSet resultSet = selectStatement.executeQuery(selectQUERY);
+
+            //check
+            if (resultSet.next()){
+
+                //dan
+                PostTopic postTopic = new PostTopic();
+                postTopic.setPostId(resultSet.getLong("id"));
+                postTopic.setPostId(resultSet.getLong("postId"));
+                postTopic.setTopicId(resultSet.getLong("topicId"));
+                return postTopic;
+            }else
+
+                // returnnull if fails
+                return null;
+            }
+        }
 
 
-        // return null if fails
-        return null;
-    }
 
-    public List<PostTopic> read(PostTopic example) throws SQLException {
 
-        Statement selectStatement = getConnection().createStatement();
+public List<PostTopic> read(PostTopic example) throws SQLException {
 
-        // add read statements here..
+    Statement selectStatement = getConnection().createStatement();
 
-        // return empty collection if fails
-        return Collections.emptyList();
-    }
+    // add read statements here..
 
-    public List<PostTopic> read() throws SQLException {
+    // return empty collection if fails
+    return Collections.emptyList();
+}
 
-        Statement selectStatement = getConnection().createStatement();
+public List<PostTopic> read() throws SQLException {
 
-        // return empty collection if fails
-        return Collections.emptyList();
-    }
+    Statement selectStatement = getConnection().createStatement();
 
-    public boolean update(long id, PostTopic existingPostTopic) throws SQLException {
+    // return empty collection if fails
+    return Collections.emptyList();
+}
 
-        Statement updateStatement = getConnection().createStatement();
+public boolean update(long id, PostTopic existingPostTopic) throws SQLException {
 
-        // return false if fails
-        return false;
-    }
+    Statement updateStatement = getConnection().createStatement();
 
-    public boolean delete(long id) throws SQLException {
+    // return false if fails
+    return false;
+}
 
-        Statement deleteStatement = getConnection().createStatement();
+public boolean delete(long id) throws SQLException {
 
-        // return false if fails
-        return false;
-    }
+    Statement deleteStatement = getConnection().createStatement();
+
+    // return false if fails
+    return false;
+}
 }
